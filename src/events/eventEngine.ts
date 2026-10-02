@@ -1,3 +1,6 @@
+import { getEvents } from "./eventStore";
+import { getAchievementStats } from "./stats";
+import { checkAchievements } from "../achievements/achievementsEngine";
 import { saveEvent } from "./eventStore";
 import type { CodeQuestEvent } from "./types";
 import {
@@ -29,9 +32,11 @@ export function getXpForEvent(event: CodeQuestEvent): number {
 
 export function processEvent(
   event: CodeQuestEvent,
-  streak: StreakData
+  streak: StreakData,
+  unlockedIds: string[]
 ) {
   console.log("CodeQuest Event:", event);
+
   saveEvent(event);
 
   const xp = getXpForEvent(event);
@@ -47,11 +52,35 @@ export function processEvent(
     );
   }
 
-  console.log(`XP earned: +${xp}`);
-  console.log("Updated streak:", updatedStreak);
+  const events = getEvents();
 
-  return {
-    xp,
-    streak: updatedStreak,
-  };
+  const stats = getAchievementStats(
+    events,
+    updatedStreak.currentStreak
+  );
+
+  const achievementResult = checkAchievements(
+    stats,
+    unlockedIds
+  );
+
+  const totalXp =
+  xp + achievementResult.bonusXp;
+
+console.log(`Base XP earned: +${xp}`);
+console.log(
+  `Achievement XP earned: +${achievementResult.bonusXp}`
+);
+console.log(`Total XP earned: +${totalXp}`);
+console.log("Updated streak:", updatedStreak);
+console.log(
+  "New achievements:",
+  achievementResult.newlyUnlocked
+);
+
+return {
+  xp: totalXp,
+  streak: updatedStreak,
+  achievements: achievementResult.newlyUnlocked,
+};
 }

@@ -182,3 +182,75 @@
     border-right-color: var(--border);
   }
 }
+.achievement-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.achievement-toast {
+  width: 320px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #161616;
+  border: 2px solid #f5c542;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+
+  animation:
+    achievement-slide-in 0.5s ease-out,
+    achievement-glow 1.5s ease-in-out infinite alternate;
+}
+
+.achievement-toast-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #f5c542;
+}
+
+.achievement-toast-icon {
+  font-size: 42px;
+  margin-top: 8px;
+}
+
+.achievement-toast-name {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.achievement-toast-description {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.achievement-toast-xp {
+  margin-top: 12px;
+  font-weight: 800;
+}
+
+@keyframes achievement-slide-in {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes achievement-glow {
+  from {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  }
+
+  to {
+    box-shadow:
+      0 10px 35px rgba(0, 0, 0, 0.5),
+      0 0 18px rgba(245, 197, 66, 0.35);
+  }
+}

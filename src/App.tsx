@@ -1,3 +1,5 @@
+import AchievementsPage from "./components/AchievementPage";
+import AchievementToast from "./components/AchievementToast";
 import { useState } from "react";
 
 import { getLevelInfo } from "./game/levels";
@@ -10,7 +12,27 @@ import type { StreakData } from "./game/streaks";
 
 
 function App() {
+  const [currentPage, setCurrentPage] =
+  useState<"dashboard" | "achievements">(
+    "dashboard"
+  );
+
+  const [achievementToasts, setAchievementToasts] =
+  useState<string[]>([]);
+
+  const [unlockedAchievements, setUnlockedAchievements] =
+  useState<string[]>(() => {
+    const saved = localStorage.getItem(
+      "codequest-achievements"
+    );
+
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const simulateSubmission = () => {
+    
+
+
   const result = processEvent(
     {
       type: "PROBLEM_SOLVED",
@@ -21,8 +43,12 @@ function App() {
       topics: ["array", "hash-table"],
       timestamp: new Date().toISOString(),
     },
-    streak
+    streak,
+    unlockedAchievements
   );
+
+  console.log("RESULT:", result);
+console.log("NEW ACHIEVEMENTS:", result.achievements);
 
   const newXp = xp + result.xp;
 
@@ -38,6 +64,22 @@ function App() {
   localStorage.setItem(
     "codequest-streak",
     JSON.stringify(result.streak)
+  );
+
+  const newAchievements = [
+    ...unlockedAchievements,
+    ...result.achievements,
+  ];
+  setAchievementToasts((current) => [
+  ...current,
+  ...result.achievements,
+]);
+
+  setUnlockedAchievements(newAchievements);
+
+  localStorage.setItem(
+    "codequest-achievements",
+    JSON.stringify(newAchievements)
   );
 };
 
@@ -75,7 +117,17 @@ function App() {
   };
 });
 
+if (currentPage === "achievements") {
   return (
+    <AchievementsPage
+      unlockedIds={unlockedAchievements}
+      onBack={() => setCurrentPage("dashboard")}
+    />
+  );
+}
+
+  return (
+    
     <div>
       <h1>⚔️ CodeQuest</h1>
 
@@ -100,9 +152,31 @@ function App() {
       <button onClick={simulateSubmission}>
   🧪 Simulate Verified Submission
 </button>
+
+<button
+  onClick={() => setCurrentPage("achievements")}
+>
+  🏆 Achievements
+</button>
+
+<div className="achievement-toast-container">
+  {achievementToasts.length > 0 && (
+    <AchievementToast
+      achievementId={achievementToasts[0]}
+      onClose={() => {
+        setAchievementToasts((current) =>
+          current.slice(1)
+        );
+      }}
+    />
+  )}
+</div>
+
     </div>
+    
     
   );
 }
+
 
 export default App;

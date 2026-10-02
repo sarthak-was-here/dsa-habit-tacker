@@ -78,7 +78,19 @@ export function checkAchievements(
     stats.currentStreak >= 7
   );
 
+    const bonusXp = newlyUnlocked.reduce(
+    (total, achievementId) => {
+      const achievement = achievements.find(
+        (item) => item.id === achievementId
+      );
+
+      return total + (achievement?.xpReward ?? 0);
+    },
+    0
+  );
+
   return {
     newlyUnlocked,
+    bonusXp,
   };
 }
