@@ -1,7 +1,13 @@
+import { saveEvent, hasEvent } from "./eventStore";
+import {
+  processQuestEvent,
+  type DailyQuestState,
+} from "../quests/questEngine";
+
 import { getEvents } from "./eventStore";
 import { getAchievementStats } from "./stats";
 import { checkAchievements } from "../achievements/achievementsEngine";
-import { saveEvent } from "./eventStore";
+// import { saveEvent } from "./eventStore";
 import type { CodeQuestEvent } from "./types";
 import {
   updateStreak,
@@ -33,9 +39,20 @@ export function getXpForEvent(event: CodeQuestEvent): number {
 export function processEvent(
   event: CodeQuestEvent,
   streak: StreakData,
-  unlockedIds: string[]
+  unlockedIds: string[],
+  dailyQuest: DailyQuestState
 ) {
   console.log("CodeQuest Event:", event);
+  if (hasEvent(event)) {
+  console.log("Duplicate event ignored:", event);
+
+  return {
+    xp: 0,
+    streak,
+    achievements: [],
+    quest: dailyQuest,
+  };
+}
 
   saveEvent(event);
 
@@ -52,6 +69,11 @@ export function processEvent(
     );
   }
 
+  const questResult = processQuestEvent(
+  event,
+  dailyQuest
+);
+
   const events = getEvents();
 
   const stats = getAchievementStats(
@@ -65,7 +87,7 @@ export function processEvent(
   );
 
   const totalXp =
-  xp + achievementResult.bonusXp;
+  xp + achievementResult.bonusXp + questResult.bonusXp;
 
 console.log(`Base XP earned: +${xp}`);
 console.log(
@@ -78,9 +100,14 @@ console.log(
   achievementResult.newlyUnlocked
 );
 
+console.log(
+  `Quest XP earned: +${questResult.bonusXp}`
+);
+
 return {
   xp: totalXp,
   streak: updatedStreak,
   achievements: achievementResult.newlyUnlocked,
+  quest: questResult.quest,
 };
 }

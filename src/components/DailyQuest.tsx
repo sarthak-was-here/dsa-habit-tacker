@@ -1,17 +1,31 @@
+import type { DailyQuestState } from "../quests/questEngine";
+
 type DailyQuestProps = {
-  onComplete: () => void;
+  quest: DailyQuestState;
 };
 
-function DailyQuest({ onComplete }: DailyQuestProps) {
+function DailyQuest({
+  quest,
+}: DailyQuestProps) {
   return (
     <div>
-      <h3>Today's Quest</h3>
+      <h3>⚔️ Today's Quest</h3>
 
-      <p>⚔️ Solve 1 LeetCode Problem</p>
+      <p>
+        Solve 1 LeetCode Problem
+      </p>
 
-      <button onClick={onComplete}>
-        Complete Quest +50 XP
-      </button>
+      <p>
+        Progress: {quest.progress} / {quest.target}
+      </p>
+
+      <p>
+        Reward: +{quest.xpReward} XP
+      </p>
+
+      {quest.completed && (
+        <p>✅ Quest Complete!</p>
+      )}
     </div>
   );
 }

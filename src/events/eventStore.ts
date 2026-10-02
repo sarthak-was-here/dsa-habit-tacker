@@ -17,7 +17,25 @@ export function getEvents(): CodeQuestEvent[] {
   }
 }
 
-export function saveEvent(event: CodeQuestEvent) {
+export function hasEvent(event: CodeQuestEvent): boolean {
+  if (!event.externalId) {
+    return false;
+  }
+
+  const events = getEvents();
+
+  return events.some(
+    (existingEvent) =>
+      existingEvent.platform === event.platform &&
+      existingEvent.externalId === event.externalId
+  );
+}
+
+export function saveEvent(event: CodeQuestEvent): boolean {
+  if (hasEvent(event)) {
+    return false;
+  }
+
   const events = getEvents();
 
   events.push(event);
@@ -26,4 +44,6 @@ export function saveEvent(event: CodeQuestEvent) {
     STORAGE_KEY,
     JSON.stringify(events)
   );
+
+  return true;
 }

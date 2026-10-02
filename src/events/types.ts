@@ -27,14 +27,15 @@ export type ProblemSolvedEvent = {
 };
 
 export type ContestCompletedEvent = {
-  type: "CONTEST_COMPLETED";
-
-  platform: Platform;
-
-  contestId: string;
-  contestName: string;
-
-  timestamp: string;
+    type: "CONTEST_COMPLETED";
+    
+    platform: Platform;
+    
+    contestId: string;
+    contestName: string;
+    
+    externalId?: string;
+    timestamp: string;
 };
 
 export type CodeQuestEvent =

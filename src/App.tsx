@@ -1,3 +1,7 @@
+import {
+  createDailyQuest,
+  type DailyQuestState,
+} from "./quests/questEngine";
 import AchievementsPage from "./components/AchievementPage";
 import AchievementToast from "./components/AchievementToast";
 import { useState } from "react";
@@ -12,6 +16,28 @@ import type { StreakData } from "./game/streaks";
 
 
 function App() {
+  const [dailyQuest, setDailyQuest] =
+  useState<DailyQuestState>(() => {
+    const savedQuest =
+      localStorage.getItem(
+        "codequest-daily-quest"
+      );
+
+    if (savedQuest) {
+      const parsedQuest = JSON.parse(savedQuest);
+
+      if (
+        parsedQuest.date ===
+        createDailyQuest().date
+      ) {
+        return parsedQuest;
+      }
+    }
+
+    return createDailyQuest();
+  });
+
+
   const [currentPage, setCurrentPage] =
   useState<"dashboard" | "achievements">(
     "dashboard"
@@ -37,6 +63,7 @@ function App() {
     {
       type: "PROBLEM_SOLVED",
       platform: "manual",
+      externalId: "test-submission-1",
       problemId: "1",
       problemName: "Two Sum",
       difficulty: "EASY",
@@ -44,10 +71,17 @@ function App() {
       timestamp: new Date().toISOString(),
     },
     streak,
-    unlockedAchievements
+    unlockedAchievements,
+    dailyQuest
   );
+  setDailyQuest(result.quest);
 
-  console.log("RESULT:", result);
+localStorage.setItem(
+  "codequest-daily-quest",
+  JSON.stringify(result.quest)
+);
+
+console.log("RESULT:", result);
 console.log("NEW ACHIEVEMENTS:", result.achievements);
 
   const newXp = xp + result.xp;
@@ -91,16 +125,16 @@ console.log("NEW ACHIEVEMENTS:", result.achievements);
 
   const levelInfo = getLevelInfo(xp);
 
-  const solveProblem = () => {
-    const newXp = xp + 50;
+  // const solveProblem = () => {
+  //   const newXp = xp + 50;
 
-    setXp(newXp);
+  //   setXp(newXp);
 
-    localStorage.setItem(
-      "codequest-xp",
-      String(newXp)
-    );
-  };
+  //   localStorage.setItem(
+  //     "codequest-xp",
+  //     String(newXp)
+  //   );
+  // };
   const [streak, setStreak] = useState<StreakData>(() => {
   const savedStreak = localStorage.getItem(
     "codequest-streak"
@@ -147,7 +181,7 @@ if (currentPage === "achievements") {
 </p>
 
       <DailyQuest
-        onComplete={solveProblem}
+        quest={dailyQuest}
       />
       <button onClick={simulateSubmission}>
   🧪 Simulate Verified Submission
