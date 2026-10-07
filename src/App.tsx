@@ -15,7 +15,7 @@ import type { StreakData } from "./game/streaks";
 
 
 function App() {
-  const [dailyQuest, setDailyQuest] =
+  const [dailyQuest] =
   useState<DailyQuestState>(() => {
     const savedQuest =
       localStorage.getItem(
@@ -52,7 +52,7 @@ const [testProblemName, setTestProblemName] =
   const [achievementToasts, setAchievementToasts] =
   useState<string[]>([]);
 
-  const [unlockedAchievements, setUnlockedAchievements] =
+  const [unlockedAchievements] =
   useState<string[]>(() => {
     const saved = localStorage.getItem(
       "codequest-achievements"
@@ -88,50 +88,9 @@ const [testProblemName, setTestProblemName] =
 
   console.log("BACKEND RESPONSE:", data);
 };
-  setDailyQuest(result.quest);
 
-localStorage.setItem(
-  "codequest-daily-quest",
-  JSON.stringify(result.quest)
-);
 
-console.log("RESULT:", result);
-console.log("NEW ACHIEVEMENTS:", result.achievements);
-
-  const newXp = xp + result.xp;
-
-  setXp(newXp);
-
-  localStorage.setItem(
-    "codequest-xp",
-    String(newXp)
-  );
-
-  setStreak(result.streak);
-
-  localStorage.setItem(
-    "codequest-streak",
-    JSON.stringify(result.streak)
-  );
-
-  const newAchievements = [
-    ...unlockedAchievements,
-    ...result.achievements,
-  ];
-  setAchievementToasts((current) => [
-  ...current,
-  ...result.achievements,
-]);
-
-  setUnlockedAchievements(newAchievements);
-
-  localStorage.setItem(
-    "codequest-achievements",
-    JSON.stringify(newAchievements)
-  );
-};
-
-  const [xp, setXp] = useState(() => {
+  const [xp] = useState(() => {
     const savedXp = localStorage.getItem("codequest-xp");
 
     return savedXp ? Number(savedXp) : 0;
@@ -139,17 +98,7 @@ console.log("NEW ACHIEVEMENTS:", result.achievements);
 
   const levelInfo = getLevelInfo(xp);
 
-  // const solveProblem = () => {
-  //   const newXp = xp + 50;
-
-  //   setXp(newXp);
-
-  //   localStorage.setItem(
-  //     "codequest-xp",
-  //     String(newXp)
-  //   );
-  // };
-  const [streak, setStreak] = useState<StreakData>(() => {
+  const [streak] = useState<StreakData>(() => {
   const savedStreak = localStorage.getItem(
     "codequest-streak"
   );
@@ -206,6 +155,22 @@ if (currentPage === "achievements") {
     placeholder="Submission ID"
   />
 
+  <input
+    value={testProblemId}
+    onChange={(event) =>
+      setTestProblemId(event.target.value)
+    }
+    placeholder="Problem ID"
+  />
+
+  <input
+    value={testProblemName}
+    onChange={(event) =>
+      setTestProblemName(event.target.value)
+    }
+    placeholder="Problem Name"
+  />
+
   <button onClick={simulateSubmission}>
     🧪 Simulate Verified Submission
   </button>
@@ -235,6 +200,5 @@ if (currentPage === "achievements") {
     
   );
 
-
-
+}
 export default App;

@@ -1,5 +1,10 @@
 import express from "express";
 import cors from "cors";
+import type { CodeQuestEvent } from "./events/types";
+import {
+  hasEvent,
+  saveEvent,
+} from "./events/eventStore";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,18 +19,32 @@ app.get("/api/health", (_req, res) => {
   });
 });
 app.post("/api/events", (req, res) => {
-  const event = req.body;
+  const event = req.body as CodeQuestEvent;
 
   if (!event || !event.type) {
     return res.status(400).json({
+      accepted: false,
       error: "Invalid event",
     });
   }
 
-  console.log("Received CodeQuest event:", event);
+  if (hasEvent(event)) {
+    console.log("Duplicate event ignored:", event);
+
+    return res.status(200).json({
+      accepted: false,
+      duplicate: true,
+      event,
+    });
+  }
+
+  saveEvent(event);
+
+  console.log("Accepted event:", event);
 
   return res.status(201).json({
     accepted: true,
+    duplicate: false,
     event,
   });
 });
