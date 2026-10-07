@@ -47,3 +47,13 @@ export function saveEvent(event: CodeQuestEvent): boolean {
 
   return true;
 }
+
+export function hasCompletedProblem(problemId: string): boolean {
+  const events = getEvents();
+
+  return events.some(
+    (event) =>
+      event.type === "PROBLEM_SOLVED" &&
+      event.problemId === problemId
+  );
+}

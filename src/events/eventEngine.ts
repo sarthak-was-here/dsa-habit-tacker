@@ -1,10 +1,10 @@
-import { saveEvent, hasEvent } from "./eventStore";
+import { saveEvent,hasEvent,getEvents,hasCompletedProblem, } from "./eventStore";
 import {
   processQuestEvent,
   type DailyQuestState,
 } from "../quests/questEngine";
 
-import { getEvents } from "./eventStore";
+// import { getEvents } from "./eventStore";
 import { getAchievementStats } from "./stats";
 import { checkAchievements } from "../achievements/achievementsEngine";
 // import { saveEvent } from "./eventStore";
@@ -14,8 +14,8 @@ import {
   type StreakData,
 } from "../game/streaks";
 
-export function getXpForEvent(event: CodeQuestEvent): number {
-  if (event.type === "PROBLEM_SOLVED") {
+export function getXpForEvent(event: CodeQuestEvent,isNewProblem:boolean): number {
+  if (event.type === "PROBLEM_SOLVED" && isNewProblem) {
     if (event.difficulty === "EASY") {
       return 50;
     }
@@ -54,9 +54,13 @@ export function processEvent(
   };
 }
 
-  saveEvent(event);
+const isNewProblem =
+event.type === "PROBLEM_SOLVED" &&
+!hasCompletedProblem(event.problemId);
 
-  const xp = getXpForEvent(event);
+saveEvent(event);
+
+  const xp = getXpForEvent(event, isNewProblem);
 
   let updatedStreak = streak;
 

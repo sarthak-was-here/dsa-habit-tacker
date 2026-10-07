@@ -10,7 +10,6 @@ import { getLevelInfo } from "./game/levels";
 
 import PlayerCard from "./components/PlayerCard";
 import DailyQuest from "./components/DailyQuest";
-import { processEvent } from "./events/eventEngine";
 import type { StreakData } from "./game/streaks";
 
 
@@ -42,6 +41,13 @@ function App() {
   useState<"dashboard" | "achievements">(
     "dashboard"
   );
+const [testSubmissionId, setTestSubmissionId] =
+  useState("test-submission-1");
+  const [testProblemId, setTestProblemId] =
+  useState("1");
+
+const [testProblemName, setTestProblemName] =
+  useState("Two Sum");
 
   const [achievementToasts, setAchievementToasts] =
   useState<string[]>([]);
@@ -55,25 +61,33 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const simulateSubmission = () => {
-    
+ const simulateSubmission = async () => {
+  const event = {
+    type: "PROBLEM_SOLVED" as const,
+    platform: "manual" as const,
+    externalId: testSubmissionId,
+    problemId: testProblemId,
+    problemName: testProblemName,
+    difficulty: "EASY" as const,
+    topics: ["array", "hash-table"],
+    timestamp: new Date().toISOString(),
+  };
 
-
-  const result = processEvent(
+  const response = await fetch(
+    "http://localhost:3000/api/events",
     {
-      type: "PROBLEM_SOLVED",
-      platform: "manual",
-      externalId: "test-submission-1",
-      problemId: "1",
-      problemName: "Two Sum",
-      difficulty: "EASY",
-      topics: ["array", "hash-table"],
-      timestamp: new Date().toISOString(),
-    },
-    streak,
-    unlockedAchievements,
-    dailyQuest
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(event),
+    }
   );
+
+  const data = await response.json();
+
+  console.log("BACKEND RESPONSE:", data);
+};
   setDailyQuest(result.quest);
 
 localStorage.setItem(
@@ -183,9 +197,19 @@ if (currentPage === "achievements") {
       <DailyQuest
         quest={dailyQuest}
       />
-      <button onClick={simulateSubmission}>
-  🧪 Simulate Verified Submission
-</button>
+      <div>
+  <input
+    value={testSubmissionId}
+    onChange={(event) =>
+      setTestSubmissionId(event.target.value)
+    }
+    placeholder="Submission ID"
+  />
+
+  <button onClick={simulateSubmission}>
+    🧪 Simulate Verified Submission
+  </button>
+</div>
 
 <button
   onClick={() => setCurrentPage("achievements")}
@@ -210,7 +234,7 @@ if (currentPage === "achievements") {
     
     
   );
-}
+
 
 
 export default App;
